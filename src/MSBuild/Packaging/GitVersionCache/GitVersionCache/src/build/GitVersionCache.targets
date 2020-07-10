@@ -5,7 +5,7 @@
   <Import Project="$(MSBuildThisDirectory)Teronis.MSBuild.Packaging.GitVersionCache.props" Condition="'$(TeronisMSBuildPackagingGitVersionCacheHasBeenLoaded)' != 'true'" />
 
   <UsingTask AssemblyFile="$(GitVersionCacheAssemblyFile)" TaskName="GetVersionCacheTask" />
-  <UsingTask AssemblyFile="$(MSBuildCoreAssemblyFile)" TaskName="MetadataToStringTask" />
+  <UsingTask AssemblyFile="$(MSBuildCoreAssemblyFile)" TaskName="InlineProperties" />
 
   <!--
   # Optional parameters:
@@ -103,9 +103,9 @@
       </VersionVariables>
     </ItemGroup>
 
-    <MetadataToStringTask Item="@(VersionVariables)">
-      <Output TaskParameter="Metadata" PropertyName="InlinedVersionCache" />
-    </MetadataToStringTask>
+    <InlineProperties Items="@(VersionVariables)">
+      <Output TaskParameter="InlinedProperties" PropertyName="InlinedVersionCache" />
+    </InlineProperties>
 
     <!-- DO NOT DELETE! It is the output by MSBuild-task and can be used with target GetVersionCacheInlineProperty. -->
     <Message Text="$(InlinedVersionCache)" Importance="high" />

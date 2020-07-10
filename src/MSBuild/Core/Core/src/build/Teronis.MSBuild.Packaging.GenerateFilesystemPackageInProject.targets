@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-
+    
     <!-- The properties below are not inherited when not using MSBuild-task. -->
     <GenerateFilesystemPackageDotNetProperties Condition="!$(GenerateFilesystemPackageMSBuildProperties.Contains('--configuration='))">--configuration=$(Configuration)</GenerateFilesystemPackageDotNetProperties>
 
@@ -18,6 +18,7 @@
     <GenerateFilesystemPackageMSBuildProperties>
       Configuration=$(Configuration);
       TargetFramework=$(TargetFramework);
+      BuildInParallel=false;
       $(GenerateFilesystemPackageMSBuildProperties)
     </GenerateFilesystemPackageMSBuildProperties>
 
@@ -29,16 +30,22 @@
     <MSBuild Projects="%(GenerateFilesystemPackageProjects.Identity)" Targets="Restore" Properties="$(GenerateFilesystemPackageMSBuildProperties)" />
   </Target>-->
 
-  <Target Name="_RestoreBuildAndGenerateFilesystemPackageProjects" DependsOnTargets="$(RestoreBuildAndGenerateFilesystemPackageProjectsDependsOn)" BeforeTargets="Build" Condition="'@(GenerateFilesystemPackageProjects)' != ''">
+  <!-- Target only run if this project which includes this file is build against specific TargetFramework. -->
+  <Target Name="_RestoreBuildAndGenerateFilesystemPackageProjects" DependsOnTargets="$(RestoreBuildAndGenerateFilesystemPackageProjectsDependsOn)" BeforeTargets="Build" Condition="'@(GenerateFilesystemPackageProjects)' != '' And '$(TargetFramework)' != ''">
     <Exec Command="dotnet build &quot;%(GenerateFilesystemPackageProjects.Identity)&quot; $(GenerateFilesystemPackageDotNetProperties)" />
     <!--<MSBuild Projects="%(GenerateFilesystemPackageProjects.Identity)" Targets="Restore" Properties="$(GenerateFilesystemPackageMSBuildProperties)" />-->
     <!--Targets="Build"-->
-    <!--<MSBuild Projects="%(GenerateFilesystemPackageProjects.Identity)"  />--> 
+    <!--<MSBuild Projects="C:\Users\christoph\source\repos\Teronis.DotNet\src\NetCoreApp\Identity\Identity\src\Teronis.NetCoreApp.Identity.csproj" Targets="GetTargetPath" Properties="Configuration=$(Configuration)">
+      <Output TaskParameter="TargetOutputs" ItemName="CompiledAssemblies" />
+    </MSBuild>-->
+    <!--<Message Text=" D DJLASDL ASDL SAD ASDJJJ @(CompiledAssemblies)" Importance="high" />-->
+    <!--<MSBuild Projects="%(GenerateFilesystemPackageProjects.Identity)" Properties="$(GenerateFilesystemPackageMSBuildProperties)" />-->
     <!--<Exec Command="dotnet msbuild -t:GenerateFilesystemPackage $(GenerateFilesystemPackageDotNetMSBuildProperties)" />-->
     <MSBuild Projects="%(GenerateFilesystemPackageProjects.Identity)" Targets="GenerateFilesystemPackage" Properties="$(GenerateFilesystemPackageMSBuildProperties)"  />
   </Target>
 
-  <Target Name="_CleanFilesystemPackageProjects" DependsOnTargets="$(CleanFilesystemPackageProjectsDependsOn)" BeforeTargets="Clean" Condition="'@(GenerateFilesystemPackageProjects)' != ''">
+  <!-- Target only run if this project which includes this file is build against specific TargetFramework. -->
+  <Target Name="_CleanFilesystemPackageProjects" DependsOnTargets="$(CleanFilesystemPackageProjectsDependsOn)" BeforeTargets="Clean" Condition="'@(GenerateFilesystemPackageProjects)' != '' And '$(TargetFramework)' != ''">
     <MSBuild Projects="%(GenerateFilesystemPackageProjects.Identity)" Targets="Clean" Properties="$(GenerateFilesystemPackageMSBuildProperties)" />
   </Target>
 
